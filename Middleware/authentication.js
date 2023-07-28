@@ -6,13 +6,17 @@ import { userModel } from "../DB/userModel.js"
 
 export const isAuthenticated=handleAsync(async(req,res,next)=>{
 
-    const {login_token} = req.cookies
-
-    if(!login_token){
-        errorThrow("Log in to access this resource",403,"Access denied")
+    if (!req.headers.authorization && !req.headers.authorization.startsWith("Bearer")) {
+      errorThrow(
+        `Please log in to access this resource`,
+        401,
+        "Permission denied"
+      );
     }
     else{
         try {
+
+            const login_token = req.headers.authorization.split(" ")[1];
        
             const decodedJsonWebToken = jwt.verify(login_token,env.JWT_SECRET_KEY)
     
